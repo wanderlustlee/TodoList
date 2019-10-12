@@ -3,6 +3,7 @@
     <header>
       <img src="../assets/logo.png" />
       <div>TodoList</div>
+      
     </header>
 
     <section class="add-section">
@@ -22,7 +23,7 @@
       <!-- 已完成 -->
       <div v-if="open">
         <ul>
-          <li v-for="(item, index) in todoList" :key="index" v-if="item.done">
+          <li v-for="(item, index) in doneList" v-bind:key="index">
             <div class="view-done">
 
               <input type="checkbox" @change="changeTodoItemStatus(index,false)" checked="checked" />
@@ -45,7 +46,7 @@
 
       <!-- 未完成 -->
       <ul>
-        <li v-for="(item, index) in todoList" :key="index" v-if="!item.done">
+        <li v-for="(item, index) in notDoneList" v-bind:key="index">
           <div class="view">
 
             <input class="toggle" type="checkbox" @change="changeTodoItemStatus(index,true)" />
@@ -97,6 +98,16 @@ export default {
       todoLength: 0, //剩余待办数量
       open: true
     };
+  },
+
+  computed: {
+    doneList() {
+      return this.todoList.filter(item => item.done)
+    },
+    
+    notDoneList() {
+      return this.todoList.filter(item => !item.done)
+    }
   },
 
   methods: {
