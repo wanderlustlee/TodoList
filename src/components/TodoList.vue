@@ -23,7 +23,7 @@
       <!-- 已完成 -->
       <div v-if="open">
         <ul>
-          <li v-for="(item, index) in doneList" v-bind:key="index">
+          <li v-for="(item, index) in todoList" :key="index" v-if="item.done">
             <div class="view-done">
 
               <input type="checkbox" @change="changeTodoItemStatus(index,false)" checked="checked" />
@@ -46,10 +46,10 @@
 
       <!-- 未完成 -->
       <ul>
-        <li v-for="(item, index) in notDoneList" v-bind:key="index">
+        <li v-for="(item, index) in todoList" :key="index" v-if="!item.done">
           <div class="view">
 
-            <input class="toggle" type="checkbox" @change="changeTodoItemStatus(index,true)" />
+            <input type="checkbox" @change="changeTodoItemStatus(index,true)" />
             <label @dblclick="getEdit(index)">{{item.todoDescription}} </label>
             <a @click="deleteTodoItem(index,true)" href="javascript:void(0)">✕</a>
             
@@ -102,10 +102,12 @@ export default {
 
   computed: {
     doneList() {
+      console.log("!!")
       return this.todoList.filter(item => item.done)
     },
     
     notDoneList() {
+      console.log("!!")
       return this.todoList.filter(item => !item.done)
     }
   },
