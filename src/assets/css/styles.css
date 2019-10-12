@@ -50,6 +50,8 @@ input:focus {
 
 a {
     color: #42b983;
+    cursor: pointer;
+    text-decoration: none;
 }
 
 ul {
@@ -158,7 +160,6 @@ li {
 .view:hover a,
 .view-done:hover a {
     opacity: 1;
-    cursor: pointer;
 }
 
 
@@ -195,7 +196,6 @@ footer {
 footer a {
     position: absolute;
     right: 10px;
-    cursor: pointer;
 }
 
 footer span {

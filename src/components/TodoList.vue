@@ -27,7 +27,7 @@
 
               <input type="checkbox" @change="changeTodoItemStatus(index,false)" checked="checked" />
               <label @dblclick="getEdit(index)">{{item.todoDescription}}</label>
-              <a @click="deleteTodoItem(index,false)" href="###">✕</a>
+              <a @click="deleteTodoItem(index,false)" href="javascript:void(0)">✕</a>
               
               <input
                 class="edit"
@@ -50,7 +50,7 @@
 
             <input class="toggle" type="checkbox" @change="changeTodoItemStatus(index,true)" />
             <label @dblclick="getEdit(index)">{{item.todoDescription}} </label>
-            <a @click="deleteTodoItem(index,true)" >✕</a>
+            <a @click="deleteTodoItem(index,true)" href="javascript:void(0)">✕</a>
             
             <textarea
               class="edit"
@@ -79,11 +79,10 @@
       <span class="switch">
         <input class="switch-box point" type="checkbox" checked="checked" v-model="open" />显示已完成
       </span>
-      <a @click="clearData()">清空</a>
+      <a @click="clearData()" href="javascript:void(0)">清空</a>
     </footer>
   </div>
 </template>
-
 
 <script>
 import * as Utils from "../utils";
