@@ -21,10 +21,9 @@
         <ul>
           <li v-for="(item, index) in todos" :key="index" >
             <div :class="getViewClass(item.done)">
-              <input v-if="item.done" type="checkbox" @change="changeTodoItemStatus(index,false)" checked="checked"/>
-              <input v-else type="checkbox" @change="changeTodoItemStatus(index,true)" />
+              <input type="checkbox" v-model="item.done" @change="changeTodoItemStatus(item)" />
               <label @dblclick="getEdit(index)">{{item.todoDescription}}</label>
-              <a @click="deleteTodoItem(index,false)" href="javascript:void(0)">✕</a>
+              <a @click="deleteTodoItem(index)" href="javascript:void(0)">✕</a>
               <input
                 class="edit"
                 v-todo-focus="item.editing"
@@ -48,7 +47,7 @@
 
     <footer>
       <span class="switch">
-        <input class="switch-box point" type="checkbox" checked="checked" v-model="open"/>显示已完成
+        <input class="switch-box point" type="checkbox" v-model="open"/>显示已完成
       </span>
       <a @click="clearData()" href="javascript:void(0)">清空</a>
     </footer>
@@ -72,13 +71,23 @@
   computed: {
     // 根据是否显示已完成事项动态调整list显示
     todos() {
-      return this.open ? this.todoList : this.todoList.filter(todo => !todo.done);
+      console.log("111")
+      let a = this.open ? this.todoList : this.todoList.filter(todo => !todo.done);
+      console.log(a)
+      // this.todoList.filter(todo => todo.done === this.open)
+      return a;
     },
     // 使用计算属性，就不需要声明属性并维护length的状态
     todoLength() {
       return this.todoList.filter(todo => !todo.done).length;
     }
   },
+
+    watch: {
+      todoList: function() {
+        Utils.setItem("todoList", this.todoList);
+      }
+    },
 
   methods: {
     // 如果缓存中有，初始化todoList
@@ -97,22 +106,26 @@
         editing: false
       }
       // 从localstorage中取
-      const todoStorage = Utils.getItem('todoList', [])
-      todoStorage.push(todoItem);
-      Utils.setItem("todoList", todoStorage);
-
+      this.todoList = Utils.getItem('todoList', [])
       this.todoList.push(todoItem)
       this.todoDescription = ''
     },
     // 删除todo
-    deleteTodoItem (index, done) {
+    deleteTodoItem (index) {
       this.todoList.splice(index, 1)
-      Utils.setItem('todoList', this.todoList)
     },
-    //更改状态
-    changeTodoItemStatus (index, done) {
-      this.todoList[index].done = done
-      Utils.setItem('todoList', this.todoList)
+    // 更改状态
+    // changeTodoItemStatus (index, done) {
+    //
+    //   const nowList = this.open ? this.todoList : this.todoList.filter(todo => !todo.done)
+    //   console.log(nowList[index].done,index,done)
+    //   nowList[index].done = done
+    //   this.todoList[index].done = done
+    //   Utils.setItem('todoList', this.todoList)
+    // },
+    changeTodoItemStatus (item) {
+      console.log(item)
+      console.log(item.done)
     },
     // 清空列表
     clearData () {
@@ -134,6 +147,7 @@
         this.todoList.splice(index, 1)
       } else {
         this.todoList[index].todoDescription = event.target.value
+        // watch监听不到这种数组更新，待优化
         Utils.setItem('todoList', this.todoList)
       }
     },
