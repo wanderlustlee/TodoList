@@ -19,18 +19,18 @@
     <section>
       <!-- 已完成 -->
         <ul>
-          <li v-for="(item, index) in todos" :key="index" >
+          <li v-for="(item, index) in todos" :key="item.todoDescription" >
             <div :class="getViewClass(item.done)">
-              <input type="checkbox" v-model="item.done" @change="changeTodoItemStatus(item)" />
-              <label @dblclick="getEdit(index)">{{item.todoDescription}}</label>
-              <a @click="deleteTodoItem(index)" href="javascript:void(0)">✕</a>
+              <input type="checkbox" v-model="item.done" />
+              <label @dblclick="getEdit(item)">{{item.todoDescription}}</label>
+              <a @click="deleteTodoItem(item)" href="javascript:void(0)">✕</a>
               <input
                 class="edit"
                 v-todo-focus="item.editing"
                 v-if="item.editing"
                 :value="item.todoDescription"
-                @blur="saveEdit(index, $event)"
-                @keydown.enter="saveEdit(index, $event)"
+                @blur="saveEdit(item, $event)"
+                @keydown.enter="saveEdit(item, $event)"
               />
             </div>
           </li>
@@ -71,11 +71,7 @@
   computed: {
     // 根据是否显示已完成事项动态调整list显示
     todos() {
-      console.log("111")
-      let a = this.open ? this.todoList : this.todoList.filter(todo => !todo.done);
-      console.log(a)
-      // this.todoList.filter(todo => todo.done === this.open)
-      return a;
+      return this.open ? this.todoList : this.todoList.filter(todo => !todo.done);
     },
     // 使用计算属性，就不需要声明属性并维护length的状态
     todoLength() {
@@ -84,8 +80,12 @@
   },
 
     watch: {
-      todoList: function() {
-        Utils.setItem("todoList", this.todoList);
+      // 监听todolist变化，实时更新缓存
+      todoList: {
+        handler() {
+          Utils.setItem("todoList", this.todoList);
+        },
+        deep: true
       }
     },
 
@@ -107,25 +107,20 @@
       }
       // 从localstorage中取
       this.todoList = Utils.getItem('todoList', [])
+      // 因为循环中使用todoDescription作为唯一key，所以为避免重复，不允许存储相同todoDescription
+      for(let item of this.todoList) {
+        if (item.todoDescription === this.todoDescription){
+          alert("不能输入重复的内容");
+          return;
+        }
+      }
       this.todoList.push(todoItem)
       this.todoDescription = ''
     },
     // 删除todo
-    deleteTodoItem (index) {
+    deleteTodoItem (localItem) {
+      const index = this.todoList.findIndex(item => item.todoDescription === localItem.todoDescription);
       this.todoList.splice(index, 1)
-    },
-    // 更改状态
-    // changeTodoItemStatus (index, done) {
-    //
-    //   const nowList = this.open ? this.todoList : this.todoList.filter(todo => !todo.done)
-    //   console.log(nowList[index].done,index,done)
-    //   nowList[index].done = done
-    //   this.todoList[index].done = done
-    //   Utils.setItem('todoList', this.todoList)
-    // },
-    changeTodoItemStatus (item) {
-      console.log(item)
-      console.log(item.done)
     },
     // 清空列表
     clearData () {
@@ -134,12 +129,14 @@
     },
 
     // 唤起编辑
-    getEdit (index) {
+    getEdit (localItem) {
+      const index = this.todoList.findIndex(item => item.todoDescription === localItem.todoDescription);
       this.todoList[index].editing = true
     },
 
     // 保存编辑
-    saveEdit (index, event) {
+    saveEdit (localItem, event) {
+      const index = this.todoList.findIndex(item => item.todoDescription === localItem.todoDescription);
       this.todoList[index].editing = false
       const editValue = event.target.value
       // 如果编辑之后内容为空，则删除事项
@@ -147,8 +144,6 @@
         this.todoList.splice(index, 1)
       } else {
         this.todoList[index].todoDescription = event.target.value
-        // watch监听不到这种数组更新，待优化
-        Utils.setItem('todoList', this.todoList)
       }
     },
 
